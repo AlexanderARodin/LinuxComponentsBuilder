@@ -1,4 +1,6 @@
-include ~/.lcb-env
+include ~/workDir/.lcb-env
+
+CHECK_GIT_STATUS = git status -s | sed 's/"/|/g'
 # ################
 # HELP
 help:
@@ -31,6 +33,7 @@ image.initrd:
 	@echo [ AUTODETECTION: $@ ]
 	@$(MAKE) -C $(shell ./scripts/main-target.sh $@) $(shell ./scripts/sub-target.sh $@)
 
+
 # ################
 # GIT
 pull:
@@ -40,7 +43,12 @@ savetogit: git.pushall
 git.pushall: git.commitall
 	@git push
 git.commitall: git.addall
-	@if [ -n "$(shell git status -s)" ] ; then git commit -m 'saving'; else echo '--- nothing to commit'; fi
+	@echo '--> COMMIT if STATUS allows..'
+	@if [ -n "$(shell $(CHECK_GIT_STATUS))" ]; \
+		then \
+			git commit -m 'saving'; \
+		else \
+			echo '--- nothing to commit'; \
+	fi
 git.addall:
 	@git add .
-
